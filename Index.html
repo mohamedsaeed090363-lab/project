@@ -1,157 +1,108 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تطبيق التداول التجريبي</title>
-<style>
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc}
-  .app{max-width:900px;margin:auto;padding:20px}
-  h1{margin-top:0}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
-  .card{background:#1e293b;border-radius:16px;padding:18px;box-shadow:0 8px 25px #0003}
-  .price{font-size:30px;font-weight:bold}
-  .up{color:#22c55e}.down{color:#ef4444}
-  input,select,button{width:100%;padding:12px;margin-top:8px;border:0;border-radius:10px;font-size:16px}
-  input,select{background:#334155;color:white}
-  button{cursor:pointer;font-weight:bold}
-  .buy{background:#22c55e;color:#06240f}.sell{background:#ef4444;color:white}
-  .reset{background:#64748b;color:white}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{padding:10px;border-bottom:1px solid #334155;text-align:center}
-  .balance{font-size:24px;font-weight:bold}
-  canvas{width:100%;height:220px;background:#0b1220;border-radius:12px}
-  .note{color:#cbd5e1;font-size:13px;line-height:1.6}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Calculator</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<div class="app">
-  <h1>📈 منصة التداول التجريبية</h1>
-  <p class="note">هذه نسخة تعليمية تجريبية. لا تستخدم أموالًا حقيقية ولا تتصل بسوق حقيقي.</p>
 
-  <div class="grid">
-    <div class="card">
-      <h3>الرصيد</h3>
-      <div class="balance" id="balance">$10,000.00</div>
+    <div class="app">
+
+        <header>
+            <div>
+                <h1>آلة حاسبة ذكية</h1>
+                <p>Smart Calculator</p>
+            </div>
+
+            <button id="themeBtn">🌙</button>
+        </header>
+
+        <main class="calculator">
+
+            <div class="display">
+                <div id="previous"></div>
+
+                <div class="result-row">
+                    <input
+                        type="text"
+                        id="display"
+                        value="0"
+                        readonly
+                    >
+
+                    <button id="copyBtn">📋</button>
+                </div>
+            </div>
+
+            <div class="scientific">
+
+                <button data-value="sin(">sin</button>
+                <button data-value="cos(">cos</button>
+                <button data-value="tan(">tan</button>
+                <button data-value="sqrt(">√</button>
+
+                <button data-value="log(">log</button>
+                <button data-value="ln(">ln</button>
+                <button data-value="π">π</button>
+                <button data-value="^">xʸ</button>
+
+            </div>
+
+            <div class="buttons">
+
+                <button class="danger" data-action="clear">AC</button>
+                <button data-action="delete">⌫</button>
+                <button data-value="%">%</button>
+                <button class="operator" data-value="/">÷</button>
+
+                <button data-value="7">7</button>
+                <button data-value="8">8</button>
+                <button data-value="9">9</button>
+                <button class="operator" data-value="*">×</button>
+
+                <button data-value="4">4</button>
+                <button data-value="5">5</button>
+                <button data-value="6">6</button>
+                <button class="operator" data-value="-">−</button>
+
+                <button data-value="1">1</button>
+                <button data-value="2">2</button>
+                <button data-value="3">3</button>
+                <button class="operator" data-value="+">+</button>
+
+                <button data-value="(">(</button>
+                <button data-value="0">0</button>
+                <button data-value=".">.</button>
+                <button class="equal" data-action="calculate">=</button>
+
+            </div>
+
+        </main>
+
+        <section class="history">
+
+            <div class="history-header">
+                <h2>سجل العمليات</h2>
+
+                <button id="clearHistory">
+                    مسح السجل
+                </button>
+            </div>
+
+            <div id="historyList">
+                <p class="empty">لا توجد عمليات حتى الآن</p>
+            </div>
+
+        </section>
+
     </div>
-    <div class="card">
-      <h3>السعر الحالي</h3>
-      <div class="price" id="price">$100.00</div>
-      <div id="change" class="up">+0.00%</div>
-    </div>
-    <div class="card">
-      <h3>المركز الحالي</h3>
-      <div id="position">0 وحدة</div>
-      <div id="value">$0.00</div>
-    </div>
-  </div>
 
-  <div class="card" style="margin-top:15px">
-    <h3>الرسم البياني</h3>
-    <canvas id="chart" width="850" height="220"></canvas>
-  </div>
+    <script src="script.js"></script>
 
-  <div class="grid" style="margin-top:15px">
-    <div class="card">
-      <h3>تنفيذ صفقة</h3>
-      <label>عدد الوحدات</label>
-      <input id="qty" type="number" min="1" value="1">
-      <button class="buy" onclick="trade('buy')">شراء</button>
-      <button class="sell" onclick="trade('sell')">بيع</button>
-      <button class="reset" onclick="resetApp()">إعادة ضبط الحساب</button>
-    </div>
-
-    <div class="card">
-      <h3>سجل العمليات</h3>
-      <table>
-        <thead><tr><th>العملية</th><th>السعر</th><th>الكمية</th></tr></thead>
-        <tbody id="history"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<script>
-let balance = 10000;
-let position = 0;
-let price = 100;
-let startPrice = 100;
-let prices = Array.from({length:40},()=>100 + (Math.random()-0.5)*4);
-let history = [];
-
-function money(n){
-  return "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-
-function update(){
-  document.getElementById("balance").textContent = money(balance);
-  document.getElementById("price").textContent = money(price);
-  document.getElementById("position").textContent = position + " وحدة";
-  document.getElementById("value").textContent = money(position*price);
-
-  const pct=((price-startPrice)/startPrice)*100;
-  const ch=document.getElementById("change");
-  ch.textContent=(pct>=0?"+":"")+pct.toFixed(2)+"%";
-  ch.className=pct>=0?"up":"down";
-
-  document.getElementById("history").innerHTML=history.slice().reverse().map(x =>
-    `<tr><td class="${x.type==='شراء'?'up':'down'}">${x.type}</td><td>${money(x.price)}</td><td>${x.qty}</td></tr>`
-  ).join("");
-
-  drawChart();
-}
-
-function trade(type){
-  const qty=Math.floor(Number(document.getElementById("qty").value));
-  if(!qty || qty<1){alert("أدخل كمية صحيحة");return;}
-
-  const total=qty*price;
-
-  if(type==="buy"){
-    if(total>balance){alert("الرصيد غير كافٍ");return;}
-    balance-=total;
-    position+=qty;
-    history.push({type:"شراء",price,qty});
-  }else{
-    if(qty>position){alert("لا تملك هذه الكمية للبيع");return;}
-    balance+=total;
-    position-=qty;
-    history.push({type:"بيع",price,qty});
-  }
-  update();
-}
-
-function resetApp(){
-  balance=10000; position=0; price=100; startPrice=100; history=[];
-  prices=Array.from({length:40},()=>100 + (Math.random()-0.5)*4);
-  update();
-}
-
-function drawChart(){
-  const c=document.getElementById("chart"), ctx=c.getContext("2d");
-  ctx.clearRect(0,0,c.width,c.height);
-  const min=Math.min(...prices)-1, max=Math.max(...prices)+1;
-  ctx.beginPath();
-  prices.forEach((p,i)=>{
-    const x=i*(c.width/(prices.length-1));
-    const y=c.height-((p-min)/(max-min))*c.height;
-    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
-  });
-  ctx.strokeStyle="#38bdf8";
-  ctx.lineWidth=3;
-  ctx.stroke();
-}
-
-setInterval(()=>{
-  const old=price;
-  price=Math.max(1, price + (Math.random()-0.48)*2);
-  prices.push(price);
-  if(prices.length>40) prices.shift();
-  update();
-},1500);
-
-update();
-</script>
 </body>
 </html>
